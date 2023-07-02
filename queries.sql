@@ -5,7 +5,7 @@ WHERE nom_lieu LIKE '%um'
 --- 2)
 SELECT COUNT(pe.id_personnage), li.nom_lieu AS ville FROM personnage pe, lieu li
 WHERE pe.id_lieu = li.id_lieu
-GROUP BY GROUP BY li.id_lieu;
+GROUP BY li.id_lieu;
 
 --- 3)
 SELECT pe.nom_personnage, pe.adresse_personnage, li.nom_lieu, spe.nom_specialite FROM personnage pe, lieu li, specialite spe
@@ -27,7 +27,7 @@ ORDER BY bat.date_bataille ASC
 SELECT  po.nom_potion, SUM(ingr.cout_ingredient*comp.qte) AS prix FROM potion po, composer comp, ingredient ingr
 WHERE po.id_potion = comp.id_potion
 AND comp.id_ingredient = ingr.id_ingredient
-GROUP BY po.nom_potion
+GROUP BY comp.id_potion
 ORDER BY prix DESC
 
 --- 7)
@@ -41,7 +41,7 @@ SELECT pe.nom_personnage, pr.qte FROM prendre_casque pr, personnage pe
 WHERE pr.id_bataille = 1
 AND pe.id_personnage = pr.id_personnage
 GROUP BY pe.nom_personnage, pr.qte
-HAVING pr.qte = ALL (SELECT MAX(qte) FROM prendre_casque)
+HAVING SUM(pr.qte) >= ALL (SELECT qte FROM prendre_casque)
 
 --- 9)
 SELECT p.nom_personnage, SUM(b.dose_boire) AS potion_bu FROM personnage p, boire b
@@ -53,12 +53,12 @@ ORDER by potion_bu DESC
 SELECT b.nom_bataille, SUM(pr.qte) AS casque_prit FROM bataille b, prendre_casque pr
 WHERE b.id_bataille = pr.id_bataille
 GROUP BY b.nom_bataille
-HAVING SUM(pr.qte) > 100
+HAVING SUM(pr.qte) >= ALL (SELECT qte FROM prendre_casque)
 
 --- 11)
 SELECT t.nom_type_casque, COUNT(c.id_casque) AS collection FROM type_casque t, casque c
 WHERE c.id_type_casque = t.id_type_casque
-GROUP BY t.nom_type_casque
+GROUP BY t.id_type_casque
 
 --- 12)
 SELECT p.nom_potion FROM composer c, potion p
